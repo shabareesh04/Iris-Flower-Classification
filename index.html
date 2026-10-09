@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Predict Iris flower species (Setosa, Versicolor, Virginica) using machine learning based on floral anatomical measurements.">
+    <title>Iris Flower Classification - Machine Learning System</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-badge">
+                <span>🤖 End-to-End Scikit-Learn Model</span>
+            </div>
+            <h1 class="app-title">🌸 Iris Flower Classification</h1>
+            <p class="app-subtitle">Machine Learning Prediction System</p>
+        </header>
+
+        <!-- Main Card -->
+        <main class="main-card">
+            <!-- Server Error Notification -->
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Validation Error:</strong> {{ error }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Interactive Sample Presets -->
+            <section class="presets-section">
+                <div class="presets-header">
+                    <span class="presets-title">💡 Quick Load Biological Samples</span>
+                    <span style="font-size: 0.75rem; color: #64748b;">Click to populate measurements</span>
+                </div>
+                <div class="presets-buttons">
+                    <button type="button" class="preset-btn" data-preset="setosa">
+                        <span>🌸</span> Setosa Sample (5.1, 3.5, 1.4, 0.2)
+                    </button>
+                    <button type="button" class="preset-btn" data-preset="versicolor">
+                        <span>🌺</span> Versicolor Sample (5.9, 3.0, 4.2, 1.5)
+                    </button>
+                    <button type="button" class="preset-btn" data-preset="virginica">
+                        <span>🌼</span> Virginica Sample (6.5, 3.0, 5.5, 1.8)
+                    </button>
+                </div>
+            </section>
+
+            <!-- Input Form -->
+            <form id="prediction-form" class="prediction-form" action="/predict" method="POST" novalidate>
+                <div class="form-grid">
+                    <!-- Sepal Length -->
+                    <div class="input-group">
+                        <label for="sepal_length" class="input-label">
+                            <span>Sepal Length</span>
+                            <span class="input-range-hint">(3.0 - 12.0 cm)</span>
+                        </label>
+                        <div class="input-field-wrapper">
+                            <input 
+                                type="number" 
+                                step="0.1" 
+                                id="sepal_length" 
+                                name="sepal_length" 
+                                class="input-field" 
+                                placeholder="e.g. 5.1" 
+                                value="{{ form_data.sepal_length if form_data else '' }}"
+                                required
+                            >
+                            <span class="input-unit">cm</span>
+                        </div>
+                        <span id="sepal_length-error" class="input-error-msg"></span>
+                    </div>
+
+                    <!-- Sepal Width -->
+                    <div class="input-group">
+                        <label for="sepal_width" class="input-label">
+                            <span>Sepal Width</span>
+                            <span class="input-range-hint">(1.5 - 6.0 cm)</span>
+                        </label>
+                        <div class="input-field-wrapper">
+                            <input 
+                                type="number" 
+                                step="0.1" 
+                                id="sepal_width" 
+                                name="sepal_width" 
+                                class="input-field" 
+                                placeholder="e.g. 3.5" 
+                                value="{{ form_data.sepal_width if form_data else '' }}"
+                                required
+                            >
+                            <span class="input-unit">cm</span>
+                        </div>
+                        <span id="sepal_width-error" class="input-error-msg"></span>
+                    </div>
+
+                    <!-- Petal Length -->
+                    <div class="input-group">
+                        <label for="petal_length" class="input-label">
+                            <span>Petal Length</span>
+                            <span class="input-range-hint">(0.5 - 10.0 cm)</span>
+                        </label>
+                        <div class="input-field-wrapper">
+                            <input 
+                                type="number" 
+                                step="0.1" 
+                                id="petal_length" 
+                                name="petal_length" 
+                                class="input-field" 
+                                placeholder="e.g. 1.4" 
+                                value="{{ form_data.petal_length if form_data else '' }}"
+                                required
+                            >
+                            <span class="input-unit">cm</span>
+                        </div>
+                        <span id="petal_length-error" class="input-error-msg"></span>
+                    </div>
+
+                    <!-- Petal Width -->
+                    <div class="input-group">
+                        <label for="petal_width" class="input-label">
+                            <span>Petal Width</span>
+                            <span class="input-range-hint">(0.1 - 4.0 cm)</span>
+                        </label>
+                        <div class="input-field-wrapper">
+                            <input 
+                                type="number" 
+                                step="0.1" 
+                                id="petal_width" 
+                                name="petal_width" 
+                                class="input-field" 
+                                placeholder="e.g. 0.2" 
+                                value="{{ form_data.petal_width if form_data else '' }}"
+                                required
+                            >
+                            <span class="input-unit">cm</span>
+                        </div>
+                        <span id="petal_width-error" class="input-error-msg"></span>
+                    </div>
+                </div>
+
+                <!-- Form Controls -->
+                <div class="form-actions">
+                    <button type="submit" id="submit-btn" class="btn-primary">
+                        <span id="btn-spinner" style="display: none;">⏳</span>
+                        <span id="btn-text">Predict Flower</span>
+                    </button>
+                    <button type="button" id="reset-btn" class="btn-secondary">
+                        <span>↺</span> Clear
+                    </button>
+                </div>
+            </form>
+
+            <!-- Model Info Footer inside card -->
+            {% if model_info %}
+            <div class="model-info-bar">
+                <span>Active Model: <strong class="model-tag">{{ model_info.model_name }}</strong></span>
+                {% if model_info.accuracy %}
+                <span>Test Accuracy: <strong class="model-tag">{{ "%.2f"|format(model_info.accuracy * 100) }}%</strong></span>
+                {% endif %}
+                <span>Classes: <strong>3 Species</strong></span>
+            </div>
+            {% endif %}
+        </main>
+
+        <!-- Academic Footer -->
+        <footer class="app-footer">
+            <p>Iris Flower Classification System &bull; Major Academic Machine Learning Project</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

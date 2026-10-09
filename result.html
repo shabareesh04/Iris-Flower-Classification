@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Classification result for Iris flower based on machine learning prediction.">
+  <title>Prediction Result - Iris Flower Classification</title>
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-badge">
+        <span>🎯 Prediction Completed</span>
+      </div>
+      <h1 class="app-title">🌸 Iris Flower Classification</h1>
+      <p class="app-subtitle">Machine Learning Prediction System</p>
+    </header>
+
+    <!-- Result Card -->
+    <main class="main-card">
+      <!-- Prediction Showcase -->
+      <div class="result-card-header">
+        <div class="result-icon-large">{{ result.icon }}</div>
+        <div class="result-title-label">Prediction Result</div>
+        <h2 class="result-species-name">{{ result.species }}</h2>
+        <span
+          class="species-badge {{ 'badge-setosa' if 'Setosa' in result.species else ('badge-versicolor' if 'Versicolor' in result.species else 'badge-virginica') }}">
+          Taxon: {{ result.species }}
+        </span>
+        <p class="result-description">{{ result.description }}</p>
+      </div>
+
+      <!-- Optional Confidence Score Callout -->
+      {% if result.confidence %}
+      <div class="confidence-callout">
+        <div>
+          <strong style="color: #1e3a8a; display: block; font-size: 1rem;">Prediction Confidence</strong>
+          <span style="color: #475569; font-size: 0.85rem;">Calculated via class probability distribution</span>
+        </div>
+        <div class="confidence-val">{{ result.confidence }}</div>
+      </div>
+      {% endif %}
+
+      <!-- Result Grid: Measurements + Class Probabilities -->
+      <div class="result-grid">
+        <!-- Input Measurements -->
+        <div class="result-box">
+          <h3 class="result-box-title">
+            <span>📏</span> Input Measurements
+          </h3>
+          <div class="measurement-list">
+            <div class="measurement-item">
+              <span class="measurement-label">Sepal Length:</span>
+              <span class="measurement-value">{{ result.measurements.sepal_length }} cm</span>
+            </div>
+            <div class="measurement-item">
+              <span class="measurement-label">Sepal Width:</span>
+              <span class="measurement-value">{{ result.measurements.sepal_width }} cm</span>
+            </div>
+            <div class="measurement-item">
+              <span class="measurement-label">Petal Length:</span>
+              <span class="measurement-value">{{ result.measurements.petal_length }} cm</span>
+            </div>
+            <div class="measurement-item">
+              <span class="measurement-label">Petal Width:</span>
+              <span class="measurement-value">{{ result.measurements.petal_width }} cm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Probability Distribution (if model supports it) -->
+        {% if result.probabilities %}
+        <div class="result-box">
+          <h3 class="result-box-title">
+            <span>📊</span> Probability Breakdown
+          </h3>
+          <div class="prob-list">
+            {% for sp_name, prob_pct in result.probabilities.items() %}
+            <div class="prob-row">
+              <div class="prob-labels">
+                <span>{{ sp_name }}</span>
+                <span>{{ prob_pct }}%</span>
+              </div>
+              <div class="prob-bar-container">
+                <div class="prob-bar-fill {{ 'highlight' if sp_name == result.species else 'normal' }}"
+                  style="width: {{ prob_pct }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% else %}
+        <!-- Model Details Fallback when no predict_proba -->
+        <div class="result-box">
+          <h3 class="result-box-title">
+            <span>ℹ️</span> Classification Details
+          </h3>
+          <p style="font-size: 0.9rem; color: #475569; line-height: 1.6;">
+            This prediction was determined by the <strong>{{ result.model_name }}</strong> algorithm using deterministic
+            decision boundaries.
+          </p>
+          <div style="margin-top: 1rem; font-size: 0.85rem; color: #64748b;">
+            Model Validation Accuracy: <strong>{{ "%.2f"|format(result.model_accuracy * 100) if result.model_accuracy
+              else "High" }}%</strong>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a href="/" class="btn-primary" style="text-decoration: none;">
+          <span>🌸</span> Predict Another Flower
+        </a>
+      </div>
+
+      <!-- Metadata info footer inside card -->
+      {% if model_info %}
+      <div class="model-info-bar">
+        <span>Model: <strong class="model-tag">{{ model_info.model_name }}</strong></span>
+        {% if model_info.training_date %}
+        <span>Trained: <strong>{{ model_info.training_date }}</strong></span>
+        {% endif %}
+        <span>Classes: <strong>3 Species</strong></span>
+      </div>
+      {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Iris Flower Classification System &bull; Major Academic Machine Learning Project</p>
+    </footer>
+  </div>
+</body>
+
+</html>
